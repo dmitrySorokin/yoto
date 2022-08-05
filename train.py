@@ -119,20 +119,18 @@ if __name__ == '__main__':
         if i_episode % 10 == 0 and args.eval is True:
             avg_reward = 0.
             episodes = 10
-            for _  in range(episodes):
+            for _ in range(episodes):
                 state = env.reset()
                 episode_reward = 0
                 done = False
                 while not done:
                     action = agent.select_action(state, evaluate=True)
-
                     next_state, reward, done, _ = env.step(action)
                     episode_reward += reward
 
                     state = next_state
                 avg_reward += episode_reward
             avg_reward /= episodes
-
 
             writer.add_scalar('avg_reward/test', avg_reward, i_episode)
             agent.save_checkpoint(args.env_name)
