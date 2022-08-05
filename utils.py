@@ -28,9 +28,10 @@ class SpeedWrapper(gym.Wrapper):
         velocity = (xpos - self.xpos) / self.dt
 
         info['velocity'] = velocity
-        info['xpos'] = xpos
-        info['ypos'] = ypos
-        info['zpos'] = zpos
+        info['x_position'] = xpos
+        info['y_position'] = ypos
+        info['z_position'] = zpos
+        info['v_target'] = self.target_vel
 
         reward_vel = max(1.0 - abs(1 - velocity / self.target_vel), 0.0) * 2
 
