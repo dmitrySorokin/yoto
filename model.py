@@ -48,6 +48,8 @@ class QNetwork(nn.Module):
         self.apply(weights_init_)
 
     def forward(self, state, action):
+        # remove target velocity from state
+        state = state[:, :-1]
         xu = torch.cat([state, action], 1)
         
         x1 = F.relu(self.linear1(xu))
@@ -68,6 +70,9 @@ class GaussianPolicy(nn.Module):
         self.linear1 = nn.Linear(num_inputs, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
+        self.weight = nn.Linear(1, hidden_dim)
+        self.bias = nn.Linear(1, hidden_dim)
+
         self.mean_linear = nn.Linear(hidden_dim, num_actions)
         self.log_std_linear = nn.Linear(hidden_dim, num_actions)
 
@@ -84,8 +89,14 @@ class GaussianPolicy(nn.Module):
                 (action_space.high + action_space.low) / 2.)
 
     def forward(self, state):
+        state, v_target = torch.split(state, [17, 1], dim=1)
+
         x = F.relu(self.linear1(state))
         x = F.relu(self.linear2(x))
+
+        gamma, beta = self.weight(v_target), self.bias(v_target)
+        x = x * gamma + beta
+
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
         log_std = torch.clamp(log_std, min=LOG_SIG_MIN, max=LOG_SIG_MAX)

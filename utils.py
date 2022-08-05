@@ -10,7 +10,7 @@ class SpeedWrapper(gym.Wrapper):
         self.xpos = None
         self.target_vel = None
         self._max_episode_steps = 1000
-        self.observation_space = gym.spaces.Box(-np.inf, np.inf, (18,))
+        # self.observation_space = gym.spaces.Box(-np.inf, np.inf, (18,))
 
     def reset(self, v_target=None):
         obs = super().reset()
