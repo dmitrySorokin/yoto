@@ -18,15 +18,20 @@ class SpeedWrapper(gym.Wrapper):
 
     def step(self, action):
         obs, _, done, info = super().step(action)
-        xpos = self.env.sim.data.qpos[0]
+        xpos, ypos, zpos = self.env.sim.data.qpos[:3]
 
         reward_ctrl = -0.1 * np.square(action).sum()
         velocity = (xpos - self.xpos) / self.dt
+
         info['velocity'] = velocity
+        info['xpos'] = xpos
+        info['ypos'] = ypos
+        info['zpos'] = zpos
+
         reward_vel = max(1.0 - abs(1 - velocity / self.target_vel), 0.0) * 2
 
         reward = reward_ctrl + reward_vel
-        print(self.env.sim.data.qpos[:3])
+        done = done or zpos > 0.8
 
         self.xpos = xpos
 

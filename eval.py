@@ -5,6 +5,7 @@ import argparse
 from sac import SAC
 import numpy as np
 import time
+from collections import defaultdict
 
 
 if __name__ == '__main__':
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     state, reward, done, info = env.reset(), 0, False, {}
     steps = 0
     tot_reward = 0
-    velocity = []
+    stats = defaultdict(list)
 
     while not done:
         env.render()
@@ -62,8 +63,9 @@ if __name__ == '__main__':
         state, reward, done, info = env.step(action)
         tot_reward += reward
         steps += 1
-        velocity.append(info['velocity'])
-        time.sleep(0.01)
-        print(state[0], state[1], state[2])
-    print(tot_reward, np.mean(velocity), )
-    print(f'velocity: {np.mean(velocity)} +- {np.std(velocity)}')
+        for key, value in info.items():
+            stats[key].append(value)
+        # time.sleep(0.01)
+    print(tot_reward)
+    for key, value in stats.items():
+        print(f'{key}: {np.mean(value)} +- {np.std(value)}')
