@@ -58,12 +58,12 @@ class QNetwork(nn.Module):
         
         x1 = F.relu(self.linear1(xu))
         x1 = F.relu(self.linear2(x1))
-        x1 = x1 * self.weight1(v_target) + self.bias1(v_target)
+        x1 = F.relu(x1 * self.weight1(v_target) + self.bias1(v_target))
         x1 = self.linear3(x1)
 
         x2 = F.relu(self.linear4(xu))
         x2 = F.relu(self.linear5(x2))
-        x2 = x2 * self.weight2(v_target) + self.bias2(v_target)
+        x2 = F.relu(x2 * self.weight2(v_target) + self.bias2(v_target))
         x2 = self.linear6(x2)
 
         return x1, x2
@@ -101,7 +101,7 @@ class GaussianPolicy(nn.Module):
         x = F.relu(self.linear2(x))
 
         gamma, beta = self.weight(v_target), self.bias(v_target)
-        x = x * gamma + beta
+        x = F.relu(x * gamma + beta)
 
         mean = self.mean_linear(x)
         log_std = self.log_std_linear(x)
