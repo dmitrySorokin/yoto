@@ -49,23 +49,23 @@ if __name__ == '__main__':
 
     env = SpeedWrapper(gym.make('HalfCheetah-v3'), 2)
     agent = SAC(env.observation_space.shape[0], env.action_space, args)
-    agent.load_checkpoint('checkpoints/sac_checkpoint_HalfCheetah-v2_')
+    agent.load_checkpoint('checkpoints/concat_vtarget')
 
-    print(env.action_space, env.observation_space)
-    state, reward, done, info = env.reset(), 0, False, {}
-    steps = 0
-    tot_reward = 0
-    stats = defaultdict(list)
+    for v_target in [-2, -1.5, -1, -0.5, 0.5, 1.0, 1.5, 2]:
+        state, reward, done, info = env.reset(v_target), 0, False, {}
+        steps = 0
+        tot_reward = 0
+        stats = defaultdict(list)
 
-    while not done:
-        env.render()
-        action = agent.select_action(state, evaluate=True)
-        state, reward, done, info = env.step(action)
-        tot_reward += reward
-        steps += 1
-        for key, value in info.items():
-            stats[key].append(value)
-        # time.sleep(0.01)
-    print(tot_reward)
-    for key, value in stats.items():
-        print(f'{key}: {np.mean(value)} +- {np.std(value)}')
+        while not done:
+            # env.render()
+            action = agent.select_action(state, evaluate=True)
+            state, reward, done, info = env.step(action)
+            tot_reward += reward
+            steps += 1
+            for key, value in info.items():
+                stats[key].append(value)
+            # time.sleep(0.01)
+        print(tot_reward)
+        for key, value in stats.items():
+            print(f'{key}: {np.mean(value)} +- {np.std(value)}')
