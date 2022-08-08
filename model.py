@@ -39,14 +39,27 @@ class QNetwork(nn.Module):
         self.linear1 = nn.Linear(num_inputs + num_actions, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
         self.linear3 = nn.Linear(hidden_dim, 1)
-        self.weight1 = nn.Linear(1, hidden_dim)
+        self.weight1 = nn.Sequential(
+            nn.Linear(1, hidden_dim),
+            nn.LeakyReLU(inplace=True),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LeakyReLU(inplace=True)
+        )
+
         self.bias1 = nn.Linear(1, hidden_dim)
+
 
         # Q2 architecture
         self.linear4 = nn.Linear(num_inputs + num_actions, hidden_dim)
         self.linear5 = nn.Linear(hidden_dim, hidden_dim)
         self.linear6 = nn.Linear(hidden_dim, 1)
-        self.weight2 = nn.Linear(1, hidden_dim)
+        self.weight2 = nn.Sequential(
+            nn.Linear(1, hidden_dim),
+            nn.LeakyReLU(inplace=True),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LeakyReLU(inplace=True)
+        )
+
         self.bias2 = nn.Linear(1, hidden_dim)
 
         self.apply(weights_init_)
@@ -76,7 +89,13 @@ class GaussianPolicy(nn.Module):
         self.linear1 = nn.Linear(num_inputs, hidden_dim)
         self.linear2 = nn.Linear(hidden_dim, hidden_dim)
 
-        self.weight = nn.Linear(1, hidden_dim)
+        self.weight = nn.Sequential(
+            nn.Linear(1, hidden_dim),
+            nn.LeakyReLU(inplace=True),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LeakyReLU(inplace=True)
+        )
+
         self.bias = nn.Linear(1, hidden_dim)
 
         self.mean_linear = nn.Linear(hidden_dim, num_actions)
