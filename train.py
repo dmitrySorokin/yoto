@@ -119,8 +119,8 @@ if __name__ == '__main__':
         if i_episode % 10 == 0 and args.eval is True:
             avg_reward = 0.
             episodes = 10
-            for _ in range(episodes):
-                state = env.reset()
+            for v_target in [-2, -1.5, -1.0, -0.5, 0.5, 1.0, 1.5, 2.0]:
+                state = env.reset(v_target)
                 episode_reward = 0
                 done = False
                 while not done:

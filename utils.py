@@ -12,12 +12,12 @@ class SpeedWrapper(gym.Wrapper):
         self._max_episode_steps = 1000
         self.observation_space = gym.spaces.Box(-np.inf, np.inf, (18,))
 
-    def reset(self, **kwargs):
+    def reset(self, v_target=None):
         obs = super().reset()
         self.xpos = self.env.sim.data.qpos[0]
 
         # target_vel \in (-2, 2)
-        self.target_vel = np.random.rand() * 4 - 2
+        self.target_vel = v_target if v_target is not None else np.random.rand() * 4 - 2
         return np.concatenate([obs, [self.target_vel]])
 
     def step(self, action):
