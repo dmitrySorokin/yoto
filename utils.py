@@ -4,8 +4,8 @@ import gym
 import numpy as np
 
 
-class SpeedWrapper(gym.Wrapper):
-    def __init__(self, e, target_vel):
+class SpeedWrapperCheetach(gym.Wrapper):
+    def __init__(self, e):
         super().__init__(e)
         self.xpos = None
         self.target_vel = None
@@ -42,6 +42,46 @@ class SpeedWrapper(gym.Wrapper):
         self.xpos = xpos
 
         return obs, reward, done, info
+
+
+class SpeedWrapperHuman(gym.Wrapper):
+    def __init__(self, e):
+        super().__init__(e)
+        self.xpos = None
+        self.target_vel = None
+        self._max_episode_steps = 1000
+        self.observation_space = gym.spaces.Box(-np.inf, np.inf, (self.observation_space.shape[0] + 1,))
+
+    def reset(self, v_target=None):
+        obs = super().reset()
+        self.xpos = self._mass_center()
+
+        # target_vel \in (-2, 2)
+        self.target_vel = v_target if v_target is not None else np.random.rand() * 4 - 2
+        return np.concatenate([obs, [self.target_vel]])
+
+    def step(self, action):
+        obs, _, _, info = super().step(action)
+        xpos = self._mass_center()
+
+        alive_bonus = 5.0
+        data = self.sim.data
+        lin_vel_cost = 1.25 * (xpos - self.xpos) / self.dt
+        quad_ctrl_cost = 0.1 * np.square(data.ctrl).sum()
+        quad_impact_cost = 0.5e-6 * np.square(data.cfrc_ext).sum()
+        quad_impact_cost = min(quad_impact_cost, 10)
+        reward = lin_vel_cost - quad_ctrl_cost - quad_impact_cost + alive_bonus
+        qpos = self.sim.data.qpos
+        done = bool((qpos[2] < 1.0) or (qpos[2] > 2.0))
+
+        self.xpos = xpos
+
+        return np.concatenate([obs, [self.target_vel]]), reward, done, info
+
+    def _mass_center(self):
+        mass = np.expand_dims(self.model.body_mass, 1)
+        xpos = self.sim.data.xipos
+        return (np.sum(mass * xpos, 0) / np.sum(mass))[0]
 
 
 def create_log_gaussian(mean, log_std, t):

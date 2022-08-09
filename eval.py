@@ -1,11 +1,11 @@
 import mujoco_py
 import gym
-from utils import SpeedWrapper
+from utils import SpeedWrapperHuman
 import argparse
 from sac import SAC
 import numpy as np
-import time
 from collections import defaultdict
+import time
 
 
 if __name__ == '__main__':
@@ -47,9 +47,9 @@ if __name__ == '__main__':
                         help='run on CUDA (default: False)')
     args = parser.parse_args()
 
-    env = SpeedWrapper(gym.make('HalfCheetah-v3'), 2)
+    env = SpeedWrapperHuman(gym.make('Humanoid-v2'))
     agent = SAC(env.observation_space.shape[0], env.action_space, args)
-    agent.load_checkpoint('checkpoints/concat_vtarget')
+    agent.load_checkpoint('checkpoints/sac_checkpoint_HalfCheetah-v2_')
 
     for v_target in [-2, -1.5, -1, -0.5, 0.5, 1.0, 1.5, 2]:
         state, reward, done, info = env.reset(v_target), 0, False, {}
@@ -58,14 +58,14 @@ if __name__ == '__main__':
         stats = defaultdict(list)
 
         while not done:
-            # env.render()
+            env.render()
             action = agent.select_action(state, evaluate=True)
             state, reward, done, info = env.step(action)
             tot_reward += reward
             steps += 1
             for key, value in info.items():
                 stats[key].append(value)
-            # time.sleep(0.01)
+            time.sleep(0.1)
         print(tot_reward)
         for key, value in stats.items():
             print(f'{key}: {np.mean(value)} +- {np.std(value)}')

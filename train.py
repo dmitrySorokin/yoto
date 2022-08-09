@@ -7,7 +7,7 @@ import torch
 from sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from replay_memory import ReplayMemory
-from utils import SpeedWrapper
+from utils import SpeedWrapperHuman
 
 
 if __name__ == '__main__':
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # Environment
     # env = NormalizedActions(gym.make(args.env_name))
-    env = SpeedWrapper(gym.make('HalfCheetah-v2'), 0.5)
+    env = SpeedWrapperHuman(gym.make('Humanoid-v2'))
     env.seed(args.seed)
     env.action_space.seed(args.seed)
 
